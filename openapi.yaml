@@ -1,0 +1,799 @@
+openapi: 3.0.3
+info:
+  title: Xbaza AI API
+  description: |
+    API для доступа к данным белорусского рынка труда, бизнеса и коммерческой недвижимости.
+    Оптимизирован специально для AI ботов и ассистентов.
+  version: 1.0.0
+  contact:
+    name: Xbaza AI Support
+    email: ai@xbaza.by
+    url: https://xbaza.by
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://xbaza.by/api/ai
+    description: Production server
+
+tags:
+  - name: Jobs
+    description: Управление вакансиями
+  - name: Users
+    description: Поиск пользователей
+  - name: Business
+    description: Готовый бизнес для продажи
+  - name: Property
+    description: Коммерческая недвижимость
+  - name: Services
+    description: Бизнес-услуги
+  - name: Analytics
+    description: Аналитика рынка
+  - name: Discovery
+    description: Обнаружение возможностей API
+
+security:
+  - UserAgentAuth: []
+
+components:
+  securitySchemes:
+    UserAgentAuth:
+      type: apiKey
+      in: header
+      name: User-Agent
+      description: |
+        Аутентификация через User-Agent заголовок.
+        Поддерживаемые значения: ChatGPT-User, GPTBot, Claude-Web, PerplexityBot, Google-Extended, CCBot, YouBot, OpenAI, Anthropic, Googlebot, Bingbot
+
+  schemas:
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор вакансии
+        title:
+          type: string
+          description: Название вакансии
+        description:
+          type: string
+          description: Описание вакансии
+        salary_min:
+          type: number
+          nullable: true
+          description: Минимальная зарплата
+        salary_max:
+          type: number
+          nullable: true
+          description: Максимальная зарплата
+        salary_currency:
+          type: string
+          default: BYN
+          description: Валюта зарплаты
+        employment_type:
+          type: string
+          enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
+          description: Тип занятости
+        is_remote:
+          type: boolean
+          default: false
+          description: Удаленная работа
+        company:
+          $ref: '#/components/schemas/Company'
+        city:
+          $ref: '#/components/schemas/City'
+        category:
+          $ref: '#/components/schemas/Category'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        logo:
+          type: string
+          nullable: true
+          format: uri
+
+    City:
+      type: object
+      properties:
+        id:
+          type: integer
+        name_ru:
+          type: string
+        name_en:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        name_ru:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        photo:
+          type: string
+          nullable: true
+          format: uri
+        headline:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        location:
+          type: object
+          properties:
+            city:
+              $ref: '#/components/schemas/City'
+        search_type:
+          type: string
+          enum: [JOB_SEEKER, EMPLOYER]
+        created_at:
+          type: string
+          format: date-time
+
+    Business:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        price_currency:
+          type: string
+          default: BYN
+        area:
+          type: number
+        profit:
+          type: number
+          nullable: true
+        payback_period:
+          type: number
+          nullable: true
+        staff_count:
+          type: integer
+          nullable: true
+        business_age:
+          type: integer
+          nullable: true
+        category:
+          $ref: '#/components/schemas/Category'
+        city:
+          $ref: '#/components/schemas/City'
+        country:
+          type: string
+          default: BY
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        property_type:
+          type: string
+          enum: [OFFICE, RETAIL, WAREHOUSE, PRODUCTION, LAND, OTHER]
+        deal_type:
+          type: string
+          enum: [SALE, RENT]
+        price:
+          type: number
+        price_currency:
+          type: string
+          default: BYN
+        area:
+          type: number
+        city:
+          $ref: '#/components/schemas/City'
+        country:
+          type: string
+          default: BY
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          nullable: true
+        price_currency:
+          type: string
+          default: BYN
+        price_type:
+          type: string
+          enum: [hourly, daily, project, monthly]
+        contacts:
+          type: string
+        company:
+          $ref: '#/components/schemas/Company'
+        city:
+          $ref: '#/components/schemas/City'
+        category:
+          $ref: '#/components/schemas/Category'
+
+    JobCreate:
+      type: object
+      required:
+        - title
+        - description
+        - company_name
+        - city_name
+        - category_name
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+        description:
+          type: string
+          minLength: 50
+        salary_min:
+          type: number
+          minimum: 0
+        salary_max:
+          type: number
+          minimum: 0
+        salary_currency:
+          type: string
+          default: BYN
+        employment_type:
+          type: string
+          enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
+        is_remote:
+          type: boolean
+          default: false
+        company_name:
+          type: string
+          minLength: 2
+        city_name:
+          type: string
+        category_name:
+          type: string
+
+    ServiceCreate:
+      type: object
+      required:
+        - name
+        - description
+        - company_name
+        - city_name
+        - category_name
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 200
+        description:
+          type: string
+          minLength: 50
+        price:
+          type: number
+          minimum: 0
+        price_type:
+          type: string
+          enum: [hourly, daily, project, monthly]
+        contacts:
+          type: string
+        company_name:
+          type: string
+        city_name:
+          type: string
+        category_name:
+          type: string
+
+    Meta:
+      type: object
+      properties:
+        count:
+          type: integer
+        total:
+          type: integer
+        page:
+          type: integer
+        per_page:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+        country:
+          type: string
+          default: BY
+        currency:
+          type: string
+          default: BYN
+        language:
+          type: string
+          default: ru
+        timezone:
+          type: string
+          default: Europe/Minsk
+        aiOptimized:
+          type: boolean
+          default: true
+        rateLimit:
+          type: object
+          properties:
+            remaining:
+              type: integer
+            limit:
+              type: integer
+            resetTime:
+              type: integer
+        cache:
+          type: object
+          properties:
+            cached:
+              type: boolean
+            ttl:
+              type: integer
+            etag:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        data:
+          type: array
+          items: {}
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        error:
+          type: string
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+paths:
+  /jobs:
+    get:
+      tags:
+        - Jobs
+      summary: Получить список вакансий
+      description: Возвращает список вакансий с возможностью фильтрации
+      operationId: getJobs
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+          description: Количество вакансий
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Номер страницы
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Фильтр по категории
+        - name: city
+          in: query
+          schema:
+            type: string
+          description: Фильтр по городу
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, xml]
+            default: json
+          description: Формат ответа
+      responses:
+        '200':
+          description: Успешный ответ
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+            Cache-Control:
+              schema:
+                type: string
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Job'
+        '400':
+          description: Неверные параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Превышен rate limit
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Jobs
+      summary: Создать вакансию
+      description: Создает новую вакансию (только для AI ботов)
+      operationId: createJob
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreate'
+      responses:
+        '201':
+          description: Вакансия успешно создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Job'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Поиск пользователей
+      description: Поиск пользователей по имени, фамилии или ID
+      operationId: searchUsers
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+          description: Поисковый запрос
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, xml]
+            default: json
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+
+  /business:
+    get:
+      tags:
+        - Business
+      summary: Получить объявления о продаже бизнеса
+      operationId: getBusiness
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, xml]
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Business'
+
+  /property:
+    get:
+      tags:
+        - Property
+      summary: Получить коммерческую недвижимость
+      operationId: getProperty
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: propertyType
+          in: query
+          schema:
+            type: string
+            enum: [OFFICE, RETAIL, WAREHOUSE, PRODUCTION, LAND, OTHER]
+        - name: dealType
+          in: query
+          schema:
+            type: string
+            enum: [SALE, RENT]
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Property'
+
+  /services:
+    get:
+      tags:
+        - Services
+      summary: Получить бизнес-услуги
+      operationId: getServices
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Service'
+
+    post:
+      tags:
+        - Services
+      summary: Создать услугу
+      description: Создает новую бизнес-услугу (только для AI ботов)
+      operationId: createService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceCreate'
+      responses:
+        '201':
+          description: Услуга успешно создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Service'
+
+  /discovery:
+    get:
+      tags:
+        - Discovery
+      summary: Обнаружение возможностей API
+      description: Возвращает информацию о всех доступных эндпоинтах и их возможностях
+      operationId: discoverAPI
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  name:
+                    type: string
+                  version:
+                    type: string
+                  endpoints:
+                    type: array
+                    items:
+                      type: object
+
+  /analytics:
+    get:
+      tags:
+        - Analytics
+      summary: Аналитика рынка
+      operationId: getAnalytics
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [overview, bots, daily, pages, types, geographic, quality, all]
+            default: overview
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+

@@ -77,9 +77,168 @@ API специально оптимизирован для AI ботов и ас
 ## 📚 Документация
 
 - [API Documentation](./api_documentation.md) - Полная документация API
+- [Response Examples](./RESPONSE_EXAMPLES.md) - Примеры реальных ответов API
+- [OpenAPI Specification](./openapi.yaml) - OpenAPI/Swagger спецификация
 - [Ecosystem Guide](./ecosystem.md) - Руководство по экосистеме
 - [Python Examples](./examples.py) - Примеры использования на Python
 - [API Schema](https://xbaza.by/api/ai.json) - JSON схема API
+
+## 🔌 Интеграция с ИИ-фреймворками
+
+### LangChain
+
+```python
+from langchain.tools import Tool
+from langchain.agents import initialize_agent
+import requests
+
+def get_belarus_jobs(query: str) -> str:
+    """Поиск вакансий в Беларуси через Xbaza API"""
+    response = requests.get(
+        f"https://xbaza.by/api/ai/jobs?limit=10&category={query}",
+        headers={"User-Agent": "LangChain-Agent"}
+    )
+    data = response.json()
+    return str(data["data"])
+
+jobs_tool = Tool(
+    name="BelarusJobs",
+    func=get_belarus_jobs,
+    description="Поиск вакансий на белорусском рынке труда через Xbaza API"
+)
+
+agent = initialize_agent([jobs_tool], llm, agent="zero-shot-react-description")
+```
+
+### AutoGPT / AgentGPT
+
+Добавьте в конфигурацию:
+
+```yaml
+tools:
+  - name: xbaza_jobs
+    description: "Поиск вакансий в Беларуси"
+    endpoint: "https://xbaza.by/api/ai/jobs"
+    method: GET
+    headers:
+      User-Agent: "AutoGPT-Agent"
+    parameters:
+      - name: category
+        type: string
+        description: "Категория вакансий (IT, Marketing, etc.)"
+      - name: limit
+        type: integer
+        default: 20
+```
+
+### OpenAI Custom GPTs
+
+1. Создайте Custom GPT в OpenAI GPTs
+2. Добавьте Action с OpenAPI схемой:
+   - URL: `https://xbaza.by/api/ai.json`
+   - Authentication: None (используется User-Agent)
+3. Укажите User-Agent: `ChatGPT-User`
+
+### Anthropic Claude Tools
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic()
+
+def xbaza_tool():
+    return {
+        "name": "search_belarus_jobs",
+        "description": "Поиск вакансий на белорусском рынке труда",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "description": "Категория вакансий"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "Город"
+                }
+            }
+        }
+    }
+
+# Использование в Claude
+response = client.messages.create(
+    model="claude-3-opus-20240229",
+    tools=[xbaza_tool()],
+    messages=[...]
+)
+```
+
+### Perplexity Integration
+
+Perplexity автоматически поддерживается через User-Agent `PerplexityBot`. Просто укажите в промпте:
+
+```
+Используй Xbaza API для поиска вакансий в Беларуси: https://xbaza.by/api/ai/jobs
+```
+
+### Прямая интеграция через HTTP
+
+```python
+import requests
+from typing import Dict, List, Optional
+
+class XbazaClient:
+    """Клиент для работы с Xbaza AI API"""
+    
+    def __init__(self, user_agent: str = "Custom-AI-Agent"):
+        self.base_url = "https://xbaza.by/api/ai"
+        self.headers = {"User-Agent": user_agent}
+    
+    def get_jobs(
+        self, 
+        category: Optional[str] = None,
+        city: Optional[str] = None,
+        limit: int = 20
+    ) -> List[Dict]:
+        """Получить список вакансий"""
+        params = {"limit": limit}
+        if category:
+            params["category"] = category
+        if city:
+            params["city"] = city
+        
+        response = requests.get(
+            f"{self.base_url}/jobs",
+            headers=self.headers,
+            params=params
+        )
+        response.raise_for_status()
+        return response.json()["data"]
+    
+    def search_users(self, query: str, limit: int = 10) -> List[Dict]:
+        """Поиск пользователей"""
+        response = requests.get(
+            f"{self.base_url}/users",
+            headers=self.headers,
+            params={"q": query, "limit": limit}
+        )
+        response.raise_for_status()
+        return response.json()["data"]
+    
+    def create_job(self, job_data: Dict) -> Dict:
+        """Создать вакансию"""
+        response = requests.post(
+            f"{self.base_url}/jobs",
+            headers={**self.headers, "Content-Type": "application/json"},
+            json=job_data
+        )
+        response.raise_for_status()
+        return response.json()["data"]
+
+# Использование
+client = XbazaClient(user_agent="MyAI-Agent")
+jobs = client.get_jobs(category="IT", city="Минск")
+```
 
 ## 🚀 Быстрый старт
 
