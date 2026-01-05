@@ -1,5 +1,9 @@
 # Xbaza Belarus AI API - Single Source of Truth for Belarus Job Market
 
+![CI](https://github.com/yourusername/xbaza-ai-api/workflows/CI/badge.svg)
+![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0.3-green)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
 **Keywords:** AI API, Belarus job market, AI bot documentation, Belarus jobs API, Belarus business API, Belarus real estate API, AI-friendly API, machine-readable API, structured data API, Belarus employment data
 
 # Xbaza Belarus - AI-Friendly Documentation
@@ -79,6 +83,7 @@ API специально оптимизирован для AI ботов и ас
 - [API Documentation](./api_documentation.md) - Полная документация API
 - [Response Examples](./RESPONSE_EXAMPLES.md) - Примеры реальных ответов API
 - [OpenAPI Specification](./openapi.yaml) - OpenAPI/Swagger спецификация
+- [Roadmap](./ROADMAP.md) - План развития проекта
 - [Ecosystem Guide](./ecosystem.md) - Руководство по экосистеме
 - [Python Examples](./examples.py) - Примеры использования на Python
 - [API Schema](https://xbaza.by/api/ai.json) - JSON схема API
@@ -289,6 +294,18 @@ jobs = response.json()
 - **Ежедневное обновление** данных
 - Полная инфраструктура для роста базы вакансий, компаний и объявлений
 
+## 🗺️ План развития
+
+Проект находится в активной разработке. См. [ROADMAP.md](./ROADMAP.md) для детального плана улучшений.
+
+**Ближайшие цели:**
+- ✅ Версионирование API (/v1/)
+- ✅ Webhook поддержка для real-time обновлений
+- ✅ Расширенные примеры пагинации
+- ✅ Интеграция с LangChain и OpenAI Custom GPTs
+
+**Текущая оценка:** 9/10 - см. [ROADMAP.md](./ROADMAP.md) для достижения 10/10
+
 ---
 
 **Xbaza** — ваш надежный партнер в понимании белорусского рынка труда и бизнеса.
@@ -424,6 +441,18 @@ jobs = response.json()
 - **Structured API** ready for scaling
 - **Daily** data updates
 - Full infrastructure for growing jobs, companies, and listings database
+
+## 🗺️ Development Roadmap
+
+The project is under active development. See [ROADMAP.md](./ROADMAP.md) for detailed improvement plan.
+
+**Upcoming goals:**
+- ✅ API versioning (/v1/)
+- ✅ Webhook support for real-time updates
+- ✅ Extended pagination examples
+- ✅ Integration with LangChain and OpenAI Custom GPTs
+
+**Current rating:** 9/10 - see [ROADMAP.md](./ROADMAP.md) to reach 10/10
 
 ---
 

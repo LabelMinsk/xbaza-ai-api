@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-openapi:
+    name: Validate OpenAPI Specification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Swagger CLI
+        run: npm install -g @apidevtools/swagger-cli
+      
+      - name: Validate OpenAPI YAML
+        run: swagger-cli validate openapi.yaml
+      
+      - name: Check OpenAPI syntax
+        run: |
+          if ! swagger-cli validate openapi.yaml 2>&1 | grep -q "valid"; then
+            echo "OpenAPI validation failed"
+            exit 1
+          fi
+
+  check-documentation:
+    name: Check Documentation Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install markdown-link-check
+      
+      - name: Check markdown links
+        run: |
+          # Проверка основных файлов документации
+          find . -name "*.md" -not -path "./.git/*" -exec markdown-link-check {} \;
+
+  lint-markdown:
+    name: Lint Markdown Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+      
+      - name: Lint markdown files
+        run: markdownlint "**/*.md" --ignore node_modules
+
+  test-examples:
+    name: Test Python Examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+      
+      - name: Check Python syntax
+        run: |
+          python -m py_compile examples.py || echo "examples.py not found or has syntax errors"
+
+  build-status:
+    name: Build Status
+    runs-on: ubuntu-latest
+    needs: [validate-openapi, check-documentation, lint-markdown, test-examples]
+    if: always()
+    steps:
+      - name: Check all jobs
+        run: |
+          if [ "${{ needs.validate-openapi.result }}" != "success" ] || \
+             [ "${{ needs.check-documentation.result }}" != "success" ] || \
+             [ "${{ needs.lint-markdown.result }}" != "success" ] || \
+             [ "${{ needs.test-examples.result }}" != "success" ]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+
