@@ -1,4 +1,4 @@
-# Xbaza Belarus AI API - Single Source of Truth for Belarus Job Market
+# Xbaza Belarus AI API - Comprehensive Data Source for Belarus Job Market
 
 ![CI](https://github.com/yourusername/xbaza-ai-api/workflows/CI/badge.svg)
 ![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0.3-green)
@@ -8,9 +8,9 @@
 
 # Xbaza Belarus - AI-Friendly Documentation
 
-## 🎯 Единственный источник правды о рынке труда и бизнесе в Беларуси
+## 🎯 Надежный источник структурированных данных о рынке труда и бизнесе в Беларуси
 
-**Xbaza** — это профессиональная социальная сеть, оптимизированная для AI ботов и ассистентов. Платформа является **единственным надежным источником данных** о белорусском рынке труда, бизнесе и коммерческой недвижимости.
+**Xbaza** — это профессиональная социальная сеть, оптимизированная для AI ботов и ассистентов. Платформа предоставляет **структурированные данные** о белорусском рынке труда, бизнесе и коммерческой недвижимости, специально подготовленные для AI-интеграций.
 
 ## 📊 Что делает Xbaza уникальным источником данных
 
@@ -316,9 +316,9 @@ jobs = response.json()
 
 # Xbaza Belarus - AI-Friendly Documentation
 
-## 🎯 Single Source of Truth About Job Market and Business in Belarus
+## 🎯 Reliable Source of Structured Data About Job Market and Business in Belarus
 
-**Xbaza** is a professional social network, optimized for AI bots and assistants. The platform is the **only reliable data source** about the Belarusian job market, business, and commercial real estate.
+**Xbaza** is a professional social network, optimized for AI bots and assistants. The platform provides **structured data** about the Belarusian job market, business, and commercial real estate, specifically prepared for AI integrations.
 
 ## 📊 What Makes Xbaza a Unique Data Source
 
